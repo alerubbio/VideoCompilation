@@ -1,19 +1,24 @@
 import pyautogui
 from selenium.webdriver.chrome.service import Service
-# import Action chains
 from selenium.webdriver.common.action_chains import ActionChains
- 
-# import KEYS
 from selenium.webdriver.common.keys import Keys
-
 from selenium import webdriver
 
-
+# webdriver PATH
 service = Service(executable_path="E:\Projects\TwitchMontage\VideoCompilation\chromedriver.exe")
+
+# twitch login
 USERNAME = ''
 PASSWORD = 'bungeeportfolio2099'
 
-driver = webdriver.Chrome(service=service)
+# change webdriver download preferences
+DOWNLOADFILEPATH = 'E:\Projects\TwitchMontage\VideoCompilation\VideoFiles\\raw_clips'
+chrome_options = webdriver.ChromeOptions()
+prefs = {'download.default_directory' : DOWNLOADFILEPATH}
+chrome_options.add_experimental_option('prefs', prefs)
+
+# open driver instance and desired window
+driver = webdriver.Chrome(service=service, options=chrome_options)
 driver.implicitly_wait(4)
 driver.get('https://www.twitch.tv/directory/game/VALORANT/clips?range=7d')
 
@@ -38,14 +43,14 @@ for ref in refs:
     counter += 1
 
 
+# loop through tabs and download each video
 for window_handle in driver.window_handles:
     if window_handle != original_window:
         driver.switch_to.window(window_handle)
-        srcRef = driver.find_element("tag name", "video").get_attribute('src')
-        print(srcRef)
+        srcLink = driver.find_element("tag name", "video").get_attribute('src')
+        driver.get(srcLink)
         driver.close()
         
-        # driver.close()
-        
-# driver.close()
-# driver.quit()
+# TODO:
+# - Add scrolling in case we need more clips
+# - Scrape other metadata for video description 
