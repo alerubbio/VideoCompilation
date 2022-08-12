@@ -19,27 +19,40 @@ chrome_options.add_experimental_option('prefs', prefs)
 
 # open driver instance and desired window
 driver = webdriver.Chrome(service=service, options=chrome_options)
-driver.implicitly_wait(4)
+driver.implicitly_wait(5)
 driver.get('https://www.twitch.tv/directory/game/VALORANT/clips?range=7d')
 
 # xpath can search for raw text
 driver.find_element("xpath", '//*[text()="Language"]').click()
 driver.find_element("xpath", '//*[text()="English"]').click()
 
-# //a[@data-a-target='preview-card-image-link']
-# // means node, first a is anchor tag, @ lets you specify the 'data-a-target' attribute with a value
-# find_elements is iterable with 20 elements
-refs = driver.find_elements("xpath", "//a[@data-a-target='preview-card-image-link']")
+def get_refs(driver):
 
-# open all tabs with first 20 clips
+    # //a[@data-a-target='preview-card-image-link']
+    # // means node, first a is anchor tag, @ lets you specify the 'data-a-target' attribute with a value
+    # find_elements is iterable with 20 elements
+    
+    i = 0
+    while i < 2:
+        refs = driver.find_elements("xpath", "//a[@data-a-target='preview-card-image-link']")
+        driver.execute_script("arguments[0].scrollIntoView(true);", refs[-1])
+        print("reference length: " + str(len(refs)))
+        i += 1
+        
+    refs = driver.find_elements("xpath", "//a[@data-a-target='preview-card-image-link']")
+    return refs
+
+refs = get_refs(driver)
+
+# open all tabs with clips
 action = ActionChains(driver)
 original_window = driver.current_window_handle
 
 counter = 0
 for ref in refs:
-    if counter == 3:
+    if counter == 2:
         break
-    action.key_down(Keys.CONTROL).click(ref).key_up(Keys.CONTROL).perform()
+    #action.key_down(Keys.CONTROL).click(ref).key_up(Keys.CONTROL).perform()
     counter += 1
 
 
@@ -50,7 +63,8 @@ for window_handle in driver.window_handles:
         srcLink = driver.find_element("tag name", "video").get_attribute('src')
         driver.get(srcLink)
         driver.close()
-        
+
+
 # TODO:
 # - Add scrolling in case we need more clips
 # - Scrape other metadata for video description 
