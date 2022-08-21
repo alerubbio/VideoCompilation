@@ -1,3 +1,6 @@
 # Video Files
 VideoFiles/**/*.mp4
-*.mp4
+
+# Data Files
+ClipData/**/*.txt
+ClipData/**/*.json
