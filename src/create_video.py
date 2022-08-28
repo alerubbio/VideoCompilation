@@ -1,12 +1,10 @@
-from cgitb import text
 import os
 import json
-from turtle import bgcolor
 from moviepy.editor import VideoFileClip, CompositeVideoClip, ColorClip, concatenate_videoclips, vfx, TextClip
 
 PATH_TO_VALID_CLIPS = 'VideoCompilation/ClipData/valid_clips.txt'
 PATH_TO_RAW_CLIPS = 'VideoCompilation\VideoFiles\\raw_clips'
-FONT_PATH = 'E:\Projects\TwitchMontage\VideoCompilation\Fonts\Twitchy.TV Font\Twitchy.TV.ttf'
+FONT_PATH = 'E:\Projects\TwitchMontage\VideoCompilation\Fonts\Valorant Font.ttf'
 
 # reads clip valid clip names from file
 def read_valid_clips_list():
@@ -39,35 +37,33 @@ def create_clips(clip_list):
         clip = clip.fx(vfx.fadein, .1).fx(vfx.fadeout, .1)
 
         # create text overlay for clip
-        text_overlay = create_text_overlay(clip_data, currentTotalDuration)
+        text = create_text_overlay(clip_data, currentTotalDuration)
         
         # combine clip and text before concatenation
-        clip = CompositeVideoClip([clip, text_overlay]).set_duration(current_clip_duration)
+        clip = CompositeVideoClip([clip, text]).set_duration(current_clip_duration)
         currentTotalDuration += current_clip_duration
 
-        texts.append(text_overlay)
+        texts.append(text)
         clips.append(clip)
 
     return clips, texts, currentTotalDuration
 
 def create_text_overlay(clip_data, currentDuration):
     streamerName = str(clip_data.get('streamerName'))
+    clip_duration = int(clip_data.get('clipDuration'))
 
-    text_clip = TextClip(txt = streamerName, font = FONT_PATH, size = (300,0), color = 'rgb(145, 70, 255)')
+    text_clip = TextClip(txt = streamerName, font = FONT_PATH, size = (0,80), color = 'rgb(145, 70, 255)')
     tc_width, tc_height = text_clip.size
     
     text_clip = text_clip.set_start(0)
-    text_clip = text_clip.set_position('center')
-    text_clip = text_clip.set_duration(2.5)
+    text_clip = text_clip.set_position( (20, 650) )
+    text_clip = text_clip.set_duration(clip_duration / 4)
     text_clip = text_clip.crossfadein(0.2).crossfadeout(0.5)
 
-    color_clip = ColorClip(size=(tc_width + 5, tc_height + 5), color='white').set_opacity(.6)
-    final_clip = CompositeVideoClip([color_clip, text_clip]).set_position(('left', 'bottom'))
-
-    return final_clip
+    return text_clip
 
 def create_final_video(clips, texts, totalDuration):
-    final_movie = concatenate_videoclips(clips, method='compose').set_duration(totalDuration) # use method='chain'
+    final_movie = concatenate_videoclips(clips, method='chain').set_duration(totalDuration) 
     return final_movie
 
 def create_movie():
@@ -77,5 +73,6 @@ def create_movie():
     
     return movie
 
+
 movie = create_movie()
-movie.write_videofile('VideoCompilation\VideoFiles\\videos\movie.mp4', threads = 8, verbose=False, logger=None, preset='ultrafast')
+movie.write_videofile('VideoCompilation\VideoFiles\\videos\movie.mp4', threads = 8, preset='ultrafast', logger=None)
