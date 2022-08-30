@@ -4,3 +4,11 @@ VideoFiles/**/*.mp4
 # Data Files
 ClipData/**/*.txt
 ClipData/**/*.json
+
+**.info
+**.txt
+**.mp3
+**.mp4
+**.png
+**.jpeg
+**.jpeg

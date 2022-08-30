@@ -5,12 +5,14 @@ from moviepy.editor import VideoFileClip, CompositeVideoClip, ColorClip, concate
 PATH_TO_VALID_CLIPS = 'VideoCompilation/ClipData/valid_clips.txt'
 PATH_TO_RAW_CLIPS = 'VideoCompilation\VideoFiles\\raw_clips'
 FONT_PATH = 'E:\Projects\TwitchMontage\VideoCompilation\Fonts\Valorant Font.ttf'
+PATH_TO_INTRO = 'E:\Projects\TwitchMontage\VideoCompilation\VideoFiles\\videos\YT_VALORANT_INTRO.mp4'
 
 # reads clip valid clip names from file
 def read_valid_clips_list():
     #read valid clips
     file = open(PATH_TO_VALID_CLIPS, 'r')
     valid_list = file.readlines()
+
     return valid_list
 
 # gets clip data
@@ -21,7 +23,7 @@ def get_clip_data(filename):
     return clips_data[filename]
 
 def create_clips(clip_list):
-    clips = []
+    clips = [VideoFileClip(PATH_TO_INTRO).resize((1920, 1080)).set_fps(30)]
     texts = []
     currentTotalDuration = 0
     for filename in clip_list:
@@ -32,7 +34,7 @@ def create_clips(clip_list):
         current_clip_duration = float(clip_data['clipDuration'])
         
         # create video clip
-        clip = VideoFileClip(video_file_path).resize((1920, 1080))
+        clip = VideoFileClip(video_file_path).resize((1920, 1080)).set_fps(30)
         clip = clip.set_duration(current_clip_duration)
         clip = clip.fx(vfx.fadein, .1).fx(vfx.fadeout, .1)
 
@@ -52,12 +54,12 @@ def create_text_overlay(clip_data, currentDuration):
     streamerName = str(clip_data.get('streamerName'))
     clip_duration = int(clip_data.get('clipDuration'))
 
-    text_clip = TextClip(txt = streamerName, font = FONT_PATH, size = (0,80), color = 'rgb(145, 70, 255)')
+    text_clip = TextClip(txt = streamerName, font = FONT_PATH, size = (0,75), color = 'rgb(202, 105, 255)')
     tc_width, tc_height = text_clip.size
     
     text_clip = text_clip.set_start(0)
-    text_clip = text_clip.set_position( (20, 650) )
-    text_clip = text_clip.set_duration(clip_duration / 4)
+    text_clip = text_clip.set_position( (20, 900) )
+    text_clip = text_clip.set_duration(min([clip_duration / 3, 6]))
     text_clip = text_clip.crossfadein(0.2).crossfadeout(0.5)
 
     return text_clip
@@ -75,4 +77,4 @@ def create_movie():
 
 
 movie = create_movie()
-movie.write_videofile('VideoCompilation\VideoFiles\\videos\movie.mp4', threads = 8, preset='ultrafast', logger=None)
+movie.write_videofile('VideoCompilation\VideoFiles\\videos\movie.mp4', threads = 8, preset='ultrafast', logger=None, fps=30)
